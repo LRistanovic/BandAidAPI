@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id     Int    @id @default(autoincrement())
+  name   String
+  cities City[]
+}
+
+model City {
+  id        Int     @id @default(autoincrement())
+  name      String
+  country   Country @relation(fields: [countryId], references: [id])
+  countryId Int
+  users     User[]
+  bands     Band[]
+}
+
+model User {
+  id              Int                   @id @default(autoincrement())
+  email           String                @unique
+  firstName       String
+  lastName        String
+  password        String
+  description     String?
+  gender          String
+  birthYear       Int
+  city            City                  @relation(fields: [cityId], references: [id])
+  cityId          Int
+  profilePicture  String?
+  playsGenres     Genre[]
+  playsInstrument UserPlaysInstrument[]
+}
+
+model Instrument {
+  id               Int                   @id @default(autoincrement())
+  name             String
+  lookedForByBands Band[]
+  playedByUser     UserPlaysInstrument[]
+}
+
+model UserPlaysInstrument {
+  user         User               @relation(fields: [userId], references: [id])
+  userId       Int
+  instrument   Instrument         @relation(fields: [instrumentId], references: [id])
+  instrumentId Int
+  howManyYears Float
+  skillLevel   Int
+  playsForBand UserPlaysForBand[]
+
+  @@id([userId, instrumentId])
+}
+
+model Genre {
+  id            Int    @id @default(autoincrement())
+  name          String
+  playedByBands Band[]
+  playedByUsers User[]
+}
+
+model Band {
+  id                    Int                @id @default(autoincrement())
+  name                  String
+  email                 String
+  city                  City               @relation(fields: [cityId], references: [id])
+  cityId                Int
+  profilePicture        String?
+  genresPlayed          Genre[]
+  lookingForInstruments Instrument[]
+  membersPlaying        UserPlaysForBand[]
+}
+
+model UserPlaysForBand {
+  userPlaysInstrument UserPlaysInstrument @relation(fields: [userId, instrumentId], references: [userId, instrumentId])
+  userId              Int
+  instrumentId        Int
+
+  forBand Band @relation(fields: [bandId], references: [id])
+  bandId  Int
+
+  @@id([userId, bandId])
+}
