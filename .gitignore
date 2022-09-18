@@ -16,3 +16,6 @@ benchmarks/graphs
 
 .env
 
+# prisma
+prisma/dev.db
+prisma/migrations/
